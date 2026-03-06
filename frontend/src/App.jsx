@@ -1,6 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import Settings from './components/Settings.jsx';
 
 const API_BASE = '/api/content';
+const TABS = [
+  { key: 'create', label: 'Generate Content' },
+  { key: 'settings', label: 'Settings' }
+];
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -11,12 +16,13 @@ function App() {
   const [generatedContent, setGeneratedContent] = useState(null);
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [activeTab, setActiveTab] = useState(TABS[0].key);
   const fileInputRef = useRef(null);
 
   const eventTypes = ['Harvest', 'Tasting', 'Event', 'Bottling', 'Vineyard', 'Wine Release', 'General'];
   const moods = ['Warm', 'Elegant', 'Playful', 'Sophisticated', 'Rustic', 'Modern'];
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadHistory();
   }, []);
 
@@ -112,13 +118,8 @@ ${JSON.parse(generatedContent.story_ideas).map((idea, i) => `${i + 1}. ${idea}`)
     copyToClipboard(all);
   };
 
-  return (
-    <div className="app">
-      <div className="header">
-        <h1>🍷 Social Media Engine for Vineyards</h1>
-        <p>Upload photos → AI generates captions, hashtags, and story ideas</p>
-      </div>
-
+  const renderGenerateTab = () => (
+    <>
       <div className="upload-section">
         <div 
           className="upload-area"
@@ -255,6 +256,30 @@ ${JSON.parse(generatedContent.story_ideas).map((idea, i) => `${i + 1}. ${idea}`)
           )}
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className="app">
+      <div className="header">
+        <h1>🍷 Social Media Engine for Vineyards</h1>
+        <p>Upload photos → AI generates captions, hashtags, and story ideas</p>
+      </div>
+
+      <div className="nav-tabs">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            type="button"
+            className={`nav-tab ${activeTab === tab.key ? 'active-tab' : ''}`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'create' ? renderGenerateTab() : <Settings />}
     </div>
   );
 }
